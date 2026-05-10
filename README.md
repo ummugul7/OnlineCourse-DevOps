@@ -83,15 +83,15 @@ Veritabanı şifresi, Django secret key ve ACR kimlik bilgileri gibi hassas veri
 
 ### Backend Pipeline
 
-`main` branch'e her push geldiğinde otomatik tetiklenir. Pipeline üç aşamadan oluşur:
+`main` branch'e her push geldiğinde otomatik tetiklenir. Pipeline'ın ihtiyaç duyduğu tüm değerler Azure DevOps Library'deki Variable Group'tan otomatik olarak alınır. Pipeline üç aşamadan oluşur:
 
-1. **Build:** Django uygulaması Docker image'ına dönüştürülür. `collectstatic` komutu build sırasında çalıştığı için `SECRET_KEY` değerinin o anda mevcut olması gerekir. Bu değer Docker'ın BuildKit secret özelliği kullanılarak güvenli şekilde build ortamına iletilir; image'a gömülmez.
+1. **Build:** Django uygulaması Docker image'ına dönüştürülür.Gerekli değerler library'den alınarak Docker BuildKit secret mekanizmasıyla build ortamına güvenli şekilde iletilir; image'a gömülmez, logda görünmez.
 2. **Push:** Oluşan image ACR'ye gönderilir.
-3. **Deploy:** SSH bağlantısıyla VM'e bağlanılır. Eski container durdurulur, yeni image ACR'den çekilir ve environment variable'larla birlikte yeni container ayağa kaldırılır.
+3. **Deploy:** SSH bağlantısıyla VM'e bağlanılır. Eski container durdurulur, yeni image ACR'den çekilir. Veritabanı bilgileri ve diğer environment variable'lar Library'den alınarak container'a iletilir ve uygulama ayağa kaldırılır.
 
 ### Frontend Pipeline
 
-Backend pipeline'ına benzer şekilde çalışır. Temel fark, `NEXT_PUBLIC_API_URL` ve `NEXT_PUBLIC_ASSET_URL` değerlerinin build sırasında `--build-arg` olarak Next.js uygulamasının içine gömülmesidir. Next.js bu değerleri runtime'da değil, build anında kullandığı için bu yöntem zorunludur.
+Backend pipeline'ına benzer şekilde çalışır. Tüm değerler yine Library'den alınır. Temel fark, `NEXT_PUBLIC_API_URL` ve `NEXT_PUBLIC_ASSET_URL` değerlerinin build sırasında `--build-arg` olarak Next.js uygulamasının içine gömülmesidir. Next.js bu değerleri runtime'da değil build anında kodun içine işlediği için bu yöntem kullanılmıştır.
 
 ---
 
