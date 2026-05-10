@@ -16,7 +16,6 @@ Bu doküman, **OnlineCourse** projesinin Azure DevOps ortamında kurulumu, yapı
 | Depolama  | Azure Blob Storage |
 | CI/CD | Azure DevOps Pipelines |
 | Reverse Proxy | Nginx |
-| SSL | Let's Encrypt (Certbot) |
 | Domain | onlinecourses.site |
 
 ---
