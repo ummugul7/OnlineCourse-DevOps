@@ -37,7 +37,7 @@ Nginx (80/443)
    Azure PostgreSQL
 ```
 
-Güvenlik gereği backend'in çalıştığı **8000 portu dışarıya kapalıdır**. Kullanıcıların ve frontend'in backend API'sine erişebilmesi için `api.onlinecourses.site` adında ayrı bir subdomain oluşturulmuştur. Bu subdomain aynı VM IP'sine yönlendirilmiş, Nginx üzerinde ise gelen istekleri VM içindeki `localhost:8000`'e iletecek şekilde yapılandırılmıştır. Böylece backend dışarıya hiç açılmadan, domain üzerinden güvenli şekilde erişilebilir hale gelmiştir.
+Güvenlik gereği backend'in çalıştığı **8000 portu dışarıya kapatılmıştır**. Kullanıcıların ve frontend'in backend API'sine erişebilmesi için `api.onlinecourses.site` adında ayrı bir subdomain oluşturulmuşturulmuştur. Bu subdomain aynı VM IP'sine yönlendirilmiş, Nginx üzerinde ise gelen istekleri VM içindeki `localhost:8000`'e iletecek şekilde yapılandırılmıştır. Böylece backend dışarıya hiç açılmadan, domain üzerinden güvenli şekilde erişilebilir hale gelmiştir.
 
 ---
 
