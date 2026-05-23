@@ -1,0 +1,41 @@
+trigger:
+  - main
+pr: none
+
+variables:
+  - group: online-course-project-varible
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: Docker@2
+    displayName: "Build and Push Backend"
+    inputs:
+      containerRegistry: 'acr_servis_baglantisi'
+      repository: 'backend-app'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile'
+      arguments: '--build-arg SECRET_KEY=$(SECRET_KEY)'
+      tags: |
+        latest
+      
+
+
+  - task: SSH@0
+    displayName: "Deploy Backend to VM"
+    inputs:
+      sshEndpoint: 'onlinecourse-vm-conn'
+      runOptions: 'commands'
+      commands: |
+        docker network create app-network 2>/dev/null || true
+        docker login $(ACR_LOGIN_SERVER) -u $(ACR_NAME) -p $(ACR_PASSWORD) 2>/dev/null
+        docker pull $(ACR_LOGIN_SERVER)/backend-app:latest
+        docker stop backend-app 2>/dev/null || true
+        docker rm backend-app 2>/dev/null || true
+        docker run -d --name backend-app --restart always --network app-network -p 8000:8000 -e SECRET_KEY='$(SECRET_KEY)' -e DB_HOST=$(DB_HOST) -e DB_NAME=$(DB_NAME) -e DB_USER=$(DB_USER) -e DB_PASSWORD=$(DB_PASSWORD) -e DB_PORT=5432 -e AZURE_ACCOUNT_NAME=$(AZURE_ACCOUNT_NAME) -e AZURE_ACCOUNT_KEY='$(AZURE_ACCOUNT_KEY)' -e AZURE_CONTAINER=$(AZURE_CONTAINER) $(ACR_LOGIN_SERVER)/backend-app:latest
+        docker image prune -f
+        sleep 5
+        docker exec backend-app python manage.py migrate --noinput
+        docker ps | grep backend-app
+        docker logs backend-app --tail 20 2>&1 || true
